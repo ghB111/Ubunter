@@ -1,28 +1,41 @@
 #include <iostream>
+#include <fstream>
+#include <string>
 
-using namespace std;
 
-char *getExecutablesName(char *str) {
-	int len = strlen(str);
-	int i;
-	for (i = len - 1; str[i] != '\\'; i--);
-	return &str[++i];
+std::string getExecutablesName(std::string fpath) {
+	
+	int i = fpath.length() - 1;
+	while (fpath[i] != '/' && fpath[i] != '\\') {
+		i--;
+	}
+	
+	int start = i + 1;
+	return fpath.substr(start, fpath.length());
 }
 
 int main(int argc, char *argv[]) {
 	
-	//fst arg is opener itself, second is the file to open
-	
 	if (argc < 2)
 		return 0;
 	
-	FILE * temp = fopen("temp.ubtemp", "w");
+	std::ifstream tempFileTryRead("temp.ubtemp"); // an obvious #TODO is to generate a random tmp file using winapi
 	
-	char *fileName = getExecutablesName(argv[1]);
+	if (tempFileTryRead.good()) {
+		std::cout << "You have a \"temp.ubtemp\" file in your directory for some reason, please remove it and try again." << std::endl;
+		system("pause");
+		return 0;
+	}
 	
-	fprintf(temp, "./%s", fileName);
+	tempFileTryRead.close();
 	
-	fclose(temp);
+	std::ofstream tempFile("temp.ubtemp");
+	
+	std::string fileName = getExecutablesName(std::string(argv[1]));
+	
+	tempFile << "./" << fileName;
+	
+	tempFile.close();
 	
 	system("C:/Windows/SysNative/bash.exe temp.ubtemp");
 	
